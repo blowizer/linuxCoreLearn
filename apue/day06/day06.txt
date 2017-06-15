@@ -1,0 +1,68 @@
+
+pid_t wait(int *status);
+函数功能：
+	当我们用fork启动了一个子进程，子进程就有了自己的生命，并将独立运行，有时，我们需要知道某个子进程是否已经结束了，我们可以用wait安排父进程在子进程之后结束。
+返回值：等待到的子进程的id
+参数：获得子进程的退出状态
+
+.wait会使父进程暂停，直到有一个进程结束为止。
+.返回值是结束的子进程的id
+.状态信息允许父进程判定子进程的退出状态，既从main函数或exit退出的退出码
+
+如果status不为空，终止状态将写入status，
+WIFEXITED(status)如果子进程正常退出，返回真
+WEXITSTATUS(status)或的子进程的退出状态
+WIFSIGNALED(status)如果子进程因信号而中断，返回真
+WTERMSIG(status)返回中断子进程的信号
+
+pid_t waitpid(pid_t pid, int *status, int options);
+
+	= -1 wait for any child process.
+			wait(&status); ==  waitpid(-1, &status, 0);
+	> 0 等待其PID等于pid的子进程
+	= 0 等待其组id等于调用进程组id的任意子进程，也就是说与调用进程在同一个组。
+	< -1 等待其组id等于pid的绝对值的任意子进程
+
+option : WNOHANG 非阻塞
+				 0 阻塞
+
+int system(const char *command);
+	执行command给出的shell命令
+
+
+守护进程/精灵进程(daemon)
+	在后台运行没有控制终端，叫守护进程
+	守护进程一般随着操作系统的启动而启动
+	守护进程的进程名字一般都以d结尾，vsftpd  sshd   crond
+
+
+一个终端就是一个会话期，登录一个shell就创建一个会话期
+一个会话期和一个终端相关联，
+
+
+创建守护进程的步骤：
+	1.fork创建一个子进程，他是将来的守护进程
+	2.exit结束父进程
+	3.调用setsid创建新的会话期
+	4.让当前目录设置为/
+	5.输入输出出错的重定向到空洞文件
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

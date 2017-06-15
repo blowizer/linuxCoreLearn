@@ -1,0 +1,52 @@
+
+条件量
+1.定义条件量 pthread_cond_t
+2.初始化条件变量 pthread_cond_init
+3.等待条件 pthread_cond_wait //
+				wait进去看条件量等于0?等于，把互斥量置1
+				直到条件满足，把互斥量恢复成原来的状态，返回
+4.改变条件 pthread_cond_signal
+			没有线程等待，发送的信号被丢弃，因为即使丢弃了信号
+			别的线程判断条件>0，也不会wait
+			如果有线程等待，会向第一个等待线程发起通知，
+           pthread_cond_broadcast
+5.释放条件量 pthread_cond_destroy
+
+使用规范
+等待条件的代码
+	pthread_mutex_lock(&mutex);
+	while ( 条件为假 )
+		pthread_cond_wait(&cond, &mutex);
+	....
+	pthread_mutex_unlock(&mutex);
+
+给条件发送信号代码
+	pthread_mutex_lock(&mutex);
+	设置条件为真
+	pthread_cond_signal(&cond);
+	pthread_mutex_unlock(&mutex);
+
+
+线程池
+	1.有若干个线程
+	2.执行大量的相对短暂的任务
+	当任务到达，能动态的增加线程池中的线程数量，直到阈值
+	当任务执行完毕，能够动态的销毁线程池中的线程
+	本质上是一个生产者消费者模型，生产者线程往任务队列中添加任务，一旦队列有任务到来，如果有等待线程就唤醒来执行任务，如果没有等待线程并且线程没有到达阈值，就创建新线程执行任务。
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

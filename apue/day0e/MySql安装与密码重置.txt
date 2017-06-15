@@ -1,0 +1,35 @@
+忘记root密码处理方法：
+/etc/local/mysql/bin/mysql
+mysql> USE mysql ;
+mysql> UPDATE user SET Password = password ( 'new-password' ) WHERE User = 'root' ;
+mysql> flush privileges ;
+mysql> quit
+重新启动mysqld_safe
+
+安装Mysql步逐
+	groupadd mysql
+	useradd -g mysql mysql
+	tar -zxvf my...gz
+	cd my...
+	./configure  --prefix=/usr/local/mysql
+	make
+	make install
+	cp support-files/my-medium.cnf /etc/my.cnf
+	
+	cd /usr/local/mysql
+	./bin/mysql_install_db --user=mysql
+	chown -R root .
+	chown -R mysql ./var
+	chgrp -R mysql .
+
+	./bin/mysqld_safe --user=mysql & 
+	./bin/msyql -u root -p
+	
+	
+
+
+
+
+
+
+

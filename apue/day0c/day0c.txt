@@ -1,0 +1,134 @@
+POSIX IPC
+消息队列
+共享内存
+信号量
+互斥量
+条件变量
+读写锁
+自旋锁
+
+POSIX消息队列
+mqd_t mq_open(const char *name, int oflag);
+mqd_t mq_open(const char *name, int oflag, mode_t mode,
+	struct mq_attr *attr);
+
+name要求，必须以/,开头，其他位置不能有/,如：/abc
+创建好的消息队列没有被挂载
+man 7 mq_overview
+# mkdir /dev/mqueue
+# mount -t mqueue none /dev/mqueue
+
+mqd_t mq_close(mqd_t mqdes);
+关闭已经打开的消息队列
+
+mqd_t mq_unlink(const char *name);
+删除消息队列文件
+
+
+获得/设置消息队列属性
+mqd_t mq_getattr(mqd_t mqdes, struct mq_attr *attr);
+mqd_t mq_setattr(mqd_t mqdes, struct mq_attr *newattr,
+		struct mq_attr *oldattr);
+
+struct mq_attr {
+	long mq_flags;       /* Flags: 0 or O_NONBLOCK */
+	long mq_maxmsg;      /* Max. # of messages on queue */
+	long mq_msgsize;     /* Max. message size (bytes) */
+	long mq_curmsgs;     /* # of messages currently in queue */
+};
+
+消息的发送
+mqd_t mq_send(mqd_t mqdes,
+		 const char *msg_ptr, //发送消息的地址
+         size_t msg_len,  //消息的大小
+		unsigned msg_prio); //消息的优先级，>=0
+
+
+取得消息队列的消息
+ssize_t mq_receive(mqd_t mqdes,
+		char *msg_ptr,
+        size_t msg_len,
+		unsigned *msg_prio);
+
+
+mqd_t mq_notify(mqd_t mqdes, 
+	const struct sigevent *notification);
+建立或删除消息队列到达通知事件
+
+notification:非空，表示消息到达，且消息队列先前为空，那么得到通知。
+	NULL:撤销已经注册的通知
+union sigval {          /* Data passed with notification */
+	int     sival_int;         /* Integer value */
+	void   *sival_ptr;         /* Pointer value */
+};
+
+struct sigevent {
+	int  sigev_notify; // SIGEV_SIGNAL
+	int  sigev_signo;  /* Notification signal */
+	union sigval sigev_value;  /* Data passed with
+                                             notification */
+	void (*sigev_notify_function) (union sigval);
+   				/* Function for thread
+               notification */
+	void *sigev_notify_attributes; /* Thread function attributes */
+};
+
+POSIX共享内存
+	int shm_open(const char *name, int oflag, mode_t mode);	
+
+多线程
+
+int pthread_create(pthread_t *thread, // 线程ID
+	const pthread_attr_t *attr, // 线程的属性,NULL
+    void *(*start_routine) (void *), //线程函数
+	void *arg);  // 线程函数传递的参数
+
+等待线程返回
+int pthread_join(pthread_t thread, //要等待的线程ID
+	void **retval); // 回收到的僵线程的返回值
+
+线程的结束
+	线程执行函数退出
+	void pthread_exit(void *retval);
+	int pthread_cancel(pthread_t thread);
+
+	int pthread_detach(pthread_t thread); //设置为分离状态
+
+pid_t              thread_t
+fork               pthread_create
+waitpid            pthread_join
+exit               pthread_exit 自杀
+kill/sigqueue      pthread_cancel 它杀
+僵进程             僵线程
+
+小练习：
+	创建一个线程，主线程打印字母A，新线程打印字母B，对于系统调用，如果出错，自己处理错误
+
+
+互斥量
+
+1.定义一个互斥量
+		pthread_mutex_t
+2.初始化互斥量
+		pthread_mutex_init
+3.使用互斥量
+		pthread_mutex_lock 0，阻塞
+						   1,置0，返回
+		pthread_mutex_unlock
+							置1,返回
+4.销毁互斥量
+		pthread_mutex_destroy
+
+//这两个东西长的像函数
+       void pthread_cleanup_push(void (*routine)(void *), void *arg);
+		routine函数的触发条件:
+						return,
+						pthread_exit,
+						pthread_cancel
+						pop(1)
+       void pthread_cleanup_pop(int execute);
+
+如何选择创建多少个线程
+	计算密集型任务,线程的个数=CPU
+	I/O密集型任务,线程的个数大于CPU
+

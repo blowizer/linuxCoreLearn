@@ -1,0 +1,7 @@
+带外数据(优先数据)
+针对套接字专用的发送和接受函数
+发送和接受普通数据，flags=0, 如果要发送带外数据flags=MSG_OOB
+size_t send(int sockfd, const void *buf, size_t len, int flags);
+ssize_t recv(int sockfd, void *buf, size_t len, int flags);
+
+

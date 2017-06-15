@@ -1,0 +1,74 @@
+复制进程映像fork
+	使用fork函数得到的子进程从父进程继承列整个地址空间，包括:进程上下文环境，进程堆栈，内存信息，打开的文件描述符，信号，控制终端，进程优先级，进程组号，当前的工作目录，资源限制...
+	父子进程的区别：
+		1.父进程设置的锁，子进程不继承
+		2.各自的进程Id不同，各自的父进程的ID也不一样
+		3.子进程的未决告警被清除
+		4.子进程的未决信号集设置为空集
+
+代码段+数据段+堆栈段+PCB做少量改动
+pid_t fork(void);  // 一次调用两次返回
+	返回值
+	如果创建成功，对于父进程返回子进程ID，对于子进程返回的是0，如果失败，没有创建子进程，父进程返回-1。
+
+fork注意点：
+	fork之后，父子进程交替运行
+	如果父进程先退出，子进程没有退出，子进程的父进程将编程init
+(任何一个进程都要有父进程) 
+	如果子进程先退出，父进程没有退出，那么子进程必须等到父进程捕获到子进程的退出状态才真正结束，否则这个时候的子进程就称为僵尸进程。
+	子进程先退出，父进程尚未查询子进程的退出状态，子进程处于僵尸状态。
+
+写时拷贝(Copy On Write)
+	如果多个进程要读取他们自己的那个资源的拷贝，那么复制是没有必要的，每个进程只要保存一个指向这个资源的指针就可以了。
+	如果一个进程要修改自己的那份资源的"副本"，那么就要复制那份资源，这就是写时拷贝。
+
+文件共享
+
+fork与vfork
+	在fork还没有实现COW机制之前，UNIX设计者很关心fork之后立刻执行exec所造成的地址空间浪费，所以引入列vfork系统调用，vfork不会拷贝父进程的地址空间，共享空间，不论子进程有没有改变数据。
+
+vfork 有个限制，子进程必须立刻执行_exit或exec函数
+即使fork实现了COW，效率也没有vfork高，但不推荐使用vfork，因为几乎在每一个vfork实现，都或多或少有一定问题。
+
+int atexit(void (*function)(void))
+	注册退出处理程序
+int on_exit(void (*function)(int , void *), void *arg);
+	注册退出处理程序，退出处理程序的第一个参数是，exit的返回值，第二个参数是任意类型的指针
+
+ int   execve(
+	const  char  *filename,  //可执行程序的文件名
+	char *const argv[], //就是main函数的argv参数
+	char *const envp[]); //就是main函数的envp参数
+
+// taogeshell的实现思路
+while ( 1 ) {
+	printf("taogeshell > ");
+	fflush(stdout);
+	getline(buf, 1024, stdin);
+	//解析字符串：
+	if ( fork() == 0) {
+		execve(buf, NULL);
+	}
+}
+
+l:把命令行参数列在函数中
+v:把命令行参数写在数组中，然后把数组传过来
+p:带环境变量path
+
+int execl(const  char  *path,  const  char *arg, ...);
+int  execlp(const  char  *file, const char *arg, ...);
+int execle(const char  *path,  const  char *arg, ..., char * const envp[]);
+int  execv(const  char  *path, char *const argv[]);
+int execvp(const char *file,  char  *const argv[]);
+
+
+
+
+
+
+
+
+
+
+
+

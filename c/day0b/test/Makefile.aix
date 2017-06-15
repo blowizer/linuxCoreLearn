@@ -1,0 +1,17 @@
+.PHONY: clean
+
+OBJS=diamond.o main.o
+TARGS=main
+CC=gcc
+FLAGS=-g -c
+
+$(TARGS): $(OBJS)
+	$(CC) $^ -o $@ 
+
+%.o : %.c
+	$(CC) $(FLAGS) $^ -o $@
+
+clean:
+	rm -rf *.o
+
+

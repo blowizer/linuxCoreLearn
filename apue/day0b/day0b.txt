@@ -1,0 +1,72 @@
+共享内存
+	最快的IPC方式，一旦这样的内存映射到共享它的地址空间，这些进程的数据传递不再涉及内核，也就是说，进程不再通过执行进入内核的系统调用来传递彼此的数据。
+
+
+int shmget(key_t key, size_t size, int shmflg);
+创建或打开共享内存
+
+void *shmat(int shmid, const void *shmaddr, int shmflg);
+
+shmaddr:要映射到进程空间的内核地址，建议写NULL，让内核自己选择
+shmflg:SHM_RND shmaddr不为NULL，此选项向下取整
+	   SHM_RDONLY 共享存储区域只读
+
+
+
+int shmdt(const void *shmaddr);
+卸载掉映射关系
+
+
+信号量集结构
+struct semid_ds {
+	struct ipc_perm sem_perm;  /* Ownership and permissions */
+	time_t          sem_otime; /* Last semop time */
+	time_t          sem_ctime; /* Last change time */
+	unsigned short  sem_nsems; /* No. of semaphores in set */
+};
+
+int semget(key_t key, int nsems, int semflg);
+创建或打开信号量集
+	nsems信号量集中信号量的个数
+
+int semctl(int semid, int semnum, int cmd, ...);
+			               |
+                           +--->信号量集中的第几个信号量，如果是
+                                删除信号量集，写0
+
+IPC_RMID 删除信号量集合
+SETVAL
+IPC_STAT
+IPC_SET
+GETVAL
+union semun {
+	int  val;    /* Value for SETVAL */
+	struct semid_ds *buf;    /* Buffer for IPC_STAT, IPC_SET */
+	unsigned short  *array;  /* Array for GETALL, SETALL */
+};
+
+int semop(int semid, struct sembuf *sops, unsigned nsops);
+struct sembuf {
+	unsigned short sem_num; // 信号量的编号
+	short          sem_op;  // 信号量一次PV操作加减的值,P"-1",V"+1"
+	short          sem_flg; // IPC_NOWAIT   SEM_UNDO.
+}
+该函数用来执行PV操作，如果信号量的值<0就等待，如果选项设置了IPC_NOWAIT，没有资源，立马返回错误，EAGAIN错误
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

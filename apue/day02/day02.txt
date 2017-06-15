@@ -1,0 +1,86 @@
+off_t lseek(int fd, off_t offset, int whence);
+函数功能：
+	lseek可以更改或获得已经打开的文件的偏移量，
+	fd: 已经打开的文件描述符
+	offset：从whence开始的偏移量
+	whence：基准位置
+		SEEK_SET 
+		SEEK_CUR
+		SEEK_END
+ssize_t pread(int fd, void *buf, size_t count, off_t offset);
+ssize_t pwrite(int fd, const void *buf, size_t count, off_t offset);
+这两个函数约等于read/write+lseek，但是他是一个原子操作，内核保证真个操作不会被打断，这两个函数不会更改文件偏移量
+	ftruncate(int fd, int length)
+	将文件的容量设置为length大小
+
+void *mmap(void *addr, 
+		// 将磁盘文件映射到内存的addr位置
+		// 建议将位置设置为NULL
+	size_t length,
+		// 要映射多大一块内存空间
+	int prot,
+		// PROT_READ 映射区域可读
+		// PROT_WRITE 映射区域可写
+	int flags,
+		MAP_SHARED
+	int fd,
+		要映射的文件的文件描述符
+	off_t offset);
+		// 从文件开始的偏移量
+
+int munmap(void *addr, size_t length);
+	卸载映射
+
+int msync(void *addr, size_t length, int flags);
+同步数据到磁盘，如果不使用此函数，将会是在munmap时将数据刷回磁盘
+
+目录
+打开目录
+DIR *opendir(const char *name);
+
+读取目录中的文件或子目录
+struct dirent *readdir(DIR *dirp);
+struct dirent {
+	char d_name[256];
+};
+
+关闭目录
+int closedir(DIR *dirp);
+
+int stat(const char *path, struct stat *buf)
+函数功能：
+	获得文件元数据
+	path :要获得元数据的文件
+	buf:将文件的元数据装入次结构体
+struct stat {
+	dev_t     st_dev;     /* ID of device containing file */
+	ino_t     st_ino;     /* inode number */
+	mode_t    st_mode;    /* protection */
+	nlink_t   st_nlink;   /* number of hard links */
+	uid_t     st_uid;     /* user ID of owner */
+	gid_t     st_gid;     /* group ID of owner */
+	dev_t     st_rdev;    /* device ID (if special file) */
+	off_t     st_size;    /* total size, in bytes */
+	blksize_t st_blksize; /* blocksize for file system I/O */
+	blkcnt_t  st_blocks;  /* number of 512B blocks allocated*/
+	time_t    st_atime;   /* time of last access */
+	time_t    st_mtime;   /* time of last modification */
+	time_t    st_ctime;   /* time of last status change */
+};
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

@@ -1,0 +1,82 @@
+#include <stdio.h>
+#include <string.h>
+
+int add_main(int argc, char *argv[])
+{
+	if ( argc < 3 ) {
+		printf("格式不对!\n");
+		return -1;
+	}
+	
+	int a = atoi(argv[1]);
+	int b = atoi(argv[2]);
+	
+	printf("res %s+%s=%d\n", argv[1],argv[2], a+b);
+
+	return 0;
+}
+
+int sub_main(int argc, char *argv[])
+{
+	if ( argc < 3 ) {
+		printf("格式不对!\n");
+		return -1;
+	}
+	
+	int a = atoi(argv[1]);
+	int b = atoi(argv[2]);
+	
+	printf("res %s+%s=%d\n", argv[1],argv[2], a-b);
+
+	return 0;
+}
+
+void do_command(int argc, char *argv[])
+{
+	if (strcmp(argv[0], "add")==0)
+		add_main(argc, argv);
+	else if (strcmp(argv[0], "sub")==0)
+		sub_main(argc, argv);
+}
+
+void parse(char * buf) {
+	int i;
+	int argc = 0;
+	char *argv[8];
+	int stat = 0;
+	
+	while ( *buf != 0 ) {
+		if ( *buf==' ' && stat==0){
+			*buf = 0;
+		}else if ( *buf!=' ' && stat==0) {
+			stat = 1;
+			argv[argc++] = buf;
+		}else if ( *buf==' ' && stat==1){
+			stat = 0;
+			*buf = 0;
+		}
+		buf ++;
+	}
+	argv[argc] = NULL;
+	/*
+	for (i=0; argv[i]!=NULL; i++)
+		printf("%s\n", argv[i]);
+	*/
+	do_command(argc, argv);
+}
+
+int main( void )
+{
+	char buf[64];
+	while ( 1 )
+	{
+		printf("taogeshell# ");
+		 fgets(buf, 64, stdin);
+		//gets(buf);
+		//scanf("%s", buf);
+		buf[strlen(buf)-1] = '\0';
+		//printf("%s\n", buf);
+		parse(buf);
+	}
+}
+

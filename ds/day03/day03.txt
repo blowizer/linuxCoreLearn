@@ -1,0 +1,176 @@
+栈：
+	一种特殊的线性表
+	只能在线性表的一端进行操作
+	栈顶(top)：允许操作的一端
+	栈低(bottom)：不允许操作的一端
+
+栈的性质：LIFO
+
+栈的操作
+	创建
+	销毁
+	清空
+	入栈
+	出栈
+	获得栈顶元素
+	获得栈大小
+
+栈的实现方式：
+	顺序栈
+	链栈
+
+实例：
+	C语言符号成对匹配出现
+		() [] {} <>  '' ""
+	
+int main( void ) { int a[5);}
+
+方案：
+	算法：
+		从第一个字符开始扫描
+		当遇到普通字符飘过，当遇到左符号就入栈，当遇到右符号时，弹出栈顶符号。
+	进行匹配：
+		如果匹配成功，继续扫描下一个字符
+		如果匹配失败，报错，停止
+	结束：
+		扫描完毕，并且栈为空，成功。
+		没有扫完毕，或栈不为空，失败。
+	
+	算法框架：
+		scanner( code ) {
+			LinkStack_Create s;
+			while ( code[i] != '\0' ) {
+				if ( code[i]是左符号 )
+					LinkStack_Push(s, code[i]);
+				if ( code[i]是右符号 ) {
+					c = LinkStack_Pop(s);
+					if ( c与code[i]不匹配 ) {
+						报错;
+						break;
+					}
+				}
+				i++;
+			}
+			
+			if ( Size(s)==0 && code[i]==0)
+				success;
+			else
+				failed;
+		}	
+
+表达式计算
+"9+(3-1)X3+10/2"
+
+5+3      => 53+
+1+2X3    => 123X+
+9+(3-1)X3=> 931-3X+
+
+中缀符合人的习惯，后缀符合计算机的运算习惯, 中缀如何转后缀？
+
+解决方案：
+	对于数字，直接输出	
+	对于符号：
+		左括号，进栈
+		符号：符号和栈顶元素进行优先级比较
+			栈顶符号的优先级低，进栈。
+			如果栈顶的优先级不低,把所有的不低的符号弹出输出,然后入栈
+		右括号：将栈顶元素弹出并输出，直到遇到左括号
+	遍历结束：将栈中的所有符号弹出并输出
+
+算法框架：
+	transform( const char *exp ) {
+		int i = 0;
+		LinkStack *stack = LinkStack_Create();
+	
+		while ( exp[i] != '\0' ) {
+			if ( isNumber(exp[i]) )
+				print(exp[i]);
+			else if ( isToken(exp[i]) ) {
+				while ( priority(exp[i]) <= priority(Top(stack)) ) {
+					char c = Pop(stack);
+					print(c);
+				}
+				LinkStack_Push(stack, exp[i]);
+			} else if ( isLeft(exp[i]) ) {
+				LinkStack_Push(stack, exp[i]);
+			} else if ( isRight(exp[i]) ) {
+				while ( (c=Pop(stack)) != '(') {
+					print(c);
+				}
+			} else {
+				printf("invalid exp!");
+				break;
+			}
+			i++;
+		}
+	
+		if ( exp[i] != '\0' )
+				printf("error!\n"),exit(-1);
+		else while ( LinkStack_Size(stack) > 0 ) 
+				print(LinkStack_Pop(stack));
+	
+		LinkStack_Destroy(stack);
+	}
+
+后缀表达式计算
+	方案：
+		遍历表达式字符串
+		数字：入栈
+		符号：
+				从栈中弹出右操作符	
+				从栈中弹出左操作符	
+				根据符号进行运算
+				运算结果入栈
+		扫描完毕，栈中唯一的值就是计算结果
+
+算法框架
+	compute(const char *exp){
+		创建栈s
+		while ( exp[i] != '\0' ) {
+			if ( exp[i]为数字 )
+				入栈;
+			else if ( exp[i]为符号 ) {
+				int right = 出栈;
+				int left = 出栈;
+				根据操作符进行计算
+				结果入栈
+			} else 
+				出错;
+			i++;
+		}
+		
+	 	栈里唯一元素弹出，就是计算结果;
+	}
+
+
+队列
+	队列仅在线性表的两端进行操作
+	对头(front):取数据元素的一端
+	对尾(rear):放数据元素的一端
+	队列不允许在线性表的中间进行操作
+	队列的性质：
+		FIFO
+	
+	存储方式：
+		顺序存储
+		链式存储	
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

@@ -1,0 +1,160 @@
+int *p = sbrk(0)
+brk(p+4);
+
+symlink
+unlink
+mkdir
+dup(fd)
+dup2(fd, newfd)
+fcntl(fd, F_DUPFD, 0)
+ioctl()
+
+int fcntl(int fd, int cmd, ... /* arg */ )
+功能：
+	操纵文件描述符，改变已打开文件的属性
+cmd:操作命令
+	F_DUPFD 复制文件描述符
+
+	文件描述符的标志
+	F_GETFD
+	F_SETFD
+
+	文件状态标志(读，写，追加....)
+	F_GETFL //fcntl返回原来文件的状态
+	F_SETFL
+	
+	文件锁
+	F_GETLK
+	F_SETLK/F_SETLKW
+	struct flock {
+		short l_type;//所类型
+			F_RDLCK, F_WRLCK, F_UNLCK 
+		short l_whence; //
+			SEEK_SET, SEEK_CUR, SEEK_END
+		off_t l_start; //从基准位置的偏移量
+		off_t l_len;  // 锁多长 0表示整个文件
+		pid_t l_pid; (F_GETLK only)
+	};
+
+
+
+     localtime(&t)
+          ^
+          |
+		t=time()
+
+struct tm {
+   int tm_sec;  /* seconds [0-60]*/
+   int tm_min;  /* minutes [0-59]*/
+   int tm_hour; /* hours [0-23]*/
+   int tm_mday; /* day of the month [0-31]*/
+   int tm_mon;  /* month [0-11]*/
+   int tm_year; /* year 从1900开始*/
+   int tm_wday; /* day of the week [0-6]*/
+   int tm_yday; /* day in the year [0-365]*/
+   int tm_isdst;/* daylight saving time */
+};
+
+size_t strftime(char *s, size_t max, 
+		const char *format, const struct tm *tm);
+time_t mktime(struct tm *tm)
+
+//如果要获得更精确的时间
+int gettimeofday(struct timeval *tv, struct timezone *tz)
+	struct timeval {
+		time_t      tv_sec;     /* seconds */
+		suseconds_t tv_usec;    /* microseconds */
+	};
+
+//获得系统标识信息
+int uname(struct utsname *buf)
+struct utsname {
+	char sysname[]; /* Operating system name "Linux" */
+	char nodename[]; 
+	char release[]; /* OS release "2.6.28" */
+	char version[]; /* OS version */
+	char machine[]; /* Hardware identifier */
+};
+如果只想获得主机名
+int gethostname(char *name, size_t len);
+
+进程
+	1.程序：完成特定任务的一系列指令的集合
+
+进程：
+	从用户的角度看，进程是程序的一次运行过程。
+	早期并没有进程的概念，直到出现了中断技术，才出现了进程的概念。中断技术的出现，进而出现列分时系统，分时系统靠的是时间片轮转，由于时间片的轮转时间比较短，所以用户感觉到CPU都是在为自己服务。
+
+	从内核的角度看进程，是操作系统分配内存，CPU时间片等资源的基本单位。
+	每一个进程都有自己的独立的地址空间和执行状态	
+	进程是资源分配的最小单位
+
+进程是程序的一次执行过程，需要保存进程的现场信息，这些信息需要保存在一个结构体,我们把这个结构体叫PCB(process contrl block)。
+PCB是操作系统用来感知进程存在的重要数据结构
+
+操作系统中维护一个PCB表，用来标识当前有多少个进程在运行。
+
+程序：代码段+数据段
+		只读数据，常量
+		已初始化的全局变量和静态局部变量
+		未初始化的全局变量和静态局部变量 bss 
+进程：代码段+数据段+堆栈段+PCB
+	PCB将前面的三部分紧密的联系在一起
+
+进程和程序的区别：
+	进程是动态的，程序是静态的
+	一个程序可以对应多个进程，一个进程只能对应一个程序
+	进程有PCB
+	进程是短暂的，程序是永久的。 
+
+进程状态的变迁
+	
+
+进程控制块
+	进程描述信息
+		进程标识符用于唯一标识一个进程
+	进程控制信息
+		进程当前状态(运行，等待，...)
+		进程优先级
+		程序开始地址
+		进程间通信 (IPC)
+		各种计时信息
+	资源信息
+		占用内存大小及管理用数据结构指针
+		交换区信息
+		I/O设备相关的数据结构
+		文件系统相关信息
+	现场保存信息
+		寄存器
+		PC
+		栈指针
+		程序状态字PSW	
+
+进程标识
+	每个进程都有一个独一无二的数字编号，我们称之为进程标识号PID(process identifer)
+范围，整整数[2 - 32768] /proc/sys/kernel/pid_max
+当一个进程被创建时，它会顺序挑选下一个未使用的编号作为自己的PID。
+数字为1的进程叫init进程 /sbin/init用户进程
+0号进程，内核进程 内存<->交换分区
+
+创建进程(一般工作)
+	给新创建的进程分配一个PID，在内核中建立它的PCB。
+	复制父进程的环境
+	为进程分配资源，包括程序，数据，用户栈
+	复制父进程地址空间的内容到该进程的地址空间
+	将该进程置为就绪态，插入就绪队列
+	
+进程撤销
+	关闭信号，因为进程即将终止而不再处理任何信号
+	回收资源，释放进程的所有资源，如，关闭打开的文件...
+	记账信息，将进程在运行过程中产生的记账数据，进程运行时的各种统计信息记录到系统的一个全局记账文件中。
+	置该进程位僵尸状态，
+	转进程调度。
+
+终止进程的方法
+	main函数退出
+	exit
+	_exit/_Exit
+	abort
+	信号
+

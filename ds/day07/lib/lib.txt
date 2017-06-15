@@ -1,0 +1,47 @@
+gcc -c -static *.c 编译成*.o文件
+ar -r 静态库文件.a  要被归档的文件
+ar -t 看静态库有那写.o文件
+nm 来查看
+
+使用时：
+	-l库名 
+	-L库的路径
+
+动态库：
+	动态库可以执行，静态库不能执行
+	编译 -fPIC  -c  
+	链接 -shared
+	
+使用 gcc main.c -l库名 -L.
+	默认查找路径:/bin  /usr/bin
+	指定查找路径:export LD_LIBRARY_PATH=.
+	
+	ldd 查看程序依赖的动态库
+	strip 去除符号信息
+	objdump 反汇编
+
+
+动态库的运行时加载：
+
+void *dlopen(const  char  *filename,  int flag);
+	filename:动态库文件的文件名
+	flag:加载方式
+		RTLD_LAZY
+		RTLD_NOW
+
+void *dlsym(void *handle, const char *symbol);
+	handle:dlopen的返回值
+	symbol:要提取的函数名
+	返回的是函数指针
+
+int dlclose(void *handle);
+
+
+
+
+
+
+
+
+
+

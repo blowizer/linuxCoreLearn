@@ -1,0 +1,15 @@
+brk 分配内存，释放内存
+sbrk 分配内存
+
+stat, 获得内核v节点表的信息
+
+opendir
+readdir
+closedir
+
+getpwuid
+getgrgid
+readlink
+unlink
+symlink
+
