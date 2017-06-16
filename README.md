@@ -4,6 +4,7 @@ Liunx Note
 - [数据类型](https://github.com/drsin/linuxCoreLearn/tree/master/c/dataType)
 - [输入输出](https://github.com/drsin/linuxCoreLearn/tree/master/c/PrintSacnf)
 - [基础练习](https://github.com/drsin/linuxCoreLearn/tree/master/c/baePractice)
+- [系统调用](https://github.com/drsin/linuxCoreLearn/tree/master/c/sysCall)
 ### liunx shell
 - kernel的版本	
 ```
